@@ -212,7 +212,7 @@ export default function PropertiesPage() {
     if (!error) {
       loadProperties();
     }
-  }, [currentPage, pageSize, searchTerm, statusFilter, typeFilter]);
+  }, [currentPage, pageSize, searchTerm, statusFilter, typeFilter, error, loadProperties]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {

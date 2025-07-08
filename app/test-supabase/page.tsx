@@ -13,7 +13,7 @@ export default function TestSupabasePage() {
 
   useEffect(() => {
     testConnection()
-  }, [])
+  }, [testConnection])
 
   const testConnection = async () => {
     const results: string[] = []

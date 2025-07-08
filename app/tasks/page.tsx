@@ -124,7 +124,7 @@ export default function TasksPage() {
       tagFilter,
     });
     loadTasks();
-  }, [searchTerm, assigneeFilter, dateFilter, typeFilter, tagFilter]);
+  }, [searchTerm, assigneeFilter, dateFilter, typeFilter, tagFilter, loadTasks]);
 
   // Log task data when it changes
   useEffect(() => {

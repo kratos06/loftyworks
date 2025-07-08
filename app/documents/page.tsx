@@ -57,7 +57,7 @@ export default function DocumentsPage() {
 
   useEffect(() => {
     loadDocuments();
-  }, [activeTab, searchTerm, currentPage, itemsPerPage]);
+  }, [activeTab, searchTerm, currentPage, itemsPerPage, loadDocuments]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {

@@ -53,11 +53,11 @@ export default function ContactsPage() {
 
   useEffect(() => {
     loadContacts();
-  }, [currentPage, pageSize, searchTerm, selectedType, activeTab]);
+  }, [currentPage, pageSize, searchTerm, selectedType, activeTab, loadContacts]);
 
   useEffect(() => {
     calculateStats();
-  }, [contacts]);
+  }, [contacts, calculateStats]);
 
   // Close dropdown when clicking outside
   useEffect(() => {

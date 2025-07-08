@@ -173,6 +173,7 @@ export default function TenanciesPage() {
     selectedEndDate,
     currentPage,
     pageSize,
+    loadTenancies,
   ]);
 
   // Click outside to close dropdowns
