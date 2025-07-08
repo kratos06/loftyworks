@@ -767,6 +767,7 @@ export default function PropertiesPage() {
       const updatedProperty: Property = {
         ...editingProperty,
         ...formData,
+        status: formData.status as Property["status"],
       };
       handleEditProperty(updatedProperty);
     };
