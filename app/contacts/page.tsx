@@ -66,6 +66,7 @@ export default function ContactsPage() {
   }, []);
 
   const loadContacts = useCallback(async () => {
+    console.log('📞 loadContacts 被调用');
     const filters: any = {
       page: currentPage,
       limit: pageSize,
@@ -82,7 +83,9 @@ export default function ContactsPage() {
       filters.type = selectedType;
     }
 
-    await fetchContacts(filters);
+    console.log('📞 调用 fetchContacts，过滤条件:', filters);
+    const result = await fetchContacts(filters);
+    console.log('📞 fetchContacts 结果:', result);
   }, [currentPage, pageSize, searchTerm, selectedType, activeTab, getTypeFromTab, fetchContacts]);
 
   const calculateStats = useCallback(() => {
@@ -114,6 +117,7 @@ export default function ContactsPage() {
   }, [contacts]);
 
   useEffect(() => {
+    console.log('🔄 联系人页面: 开始加载联系人数据...');
     loadContacts();
   }, [loadContacts]);
 
@@ -245,6 +249,9 @@ export default function ContactsPage() {
       <div style={pageStyle}>
         <div style={{ padding: "20px", textAlign: "center" }}>
           <p>加载中...</p>
+          <p style={{ fontSize: "12px", color: "#666" }}>
+            调试信息: loading={loading.toString()}, contacts.length={contacts.length}
+          </p>
         </div>
       </div>
     );
@@ -787,6 +794,9 @@ export default function ContactsPage() {
           >
             <p>暂无联系人数据</p>
             <p>请先在 Supabase Dashboard 中执行数据库架构和示例数据脚本</p>
+            <p style={{ fontSize: "12px", color: "#666", marginTop: "20px" }}>
+              调试信息: loading={loading.toString()}, contacts.length={contacts.length}, error={error || 'null'}
+            </p>
           </div>
         )}
 

@@ -149,7 +149,6 @@ export default function TenanciesPage() {
   const [typeSearchTerm, setTypeSearchTerm] = useState("");
   const [statusFilterOpen, setStatusFilterOpen] = useState(false);
   const [selectedStatus, setSelectedStatus] = useState("All");
-  const [statusSearchTerm, setStatusSearchTerm] = useState("");
   const [renewalDateFilterOpen, setRenewalDateFilterOpen] = useState(false);
   const [selectedRenewalDate, setSelectedRenewalDate] = useState("All");
   const [endDateFilterOpen, setEndDateFilterOpen] = useState(false);
@@ -172,16 +171,55 @@ export default function TenanciesPage() {
       filters.search = searchTerm;
     }
 
+    // Apply status filter to API call like contacts type filter
+    if (activeTab !== "all") {
+      // Map tab to status filter
+      switch (activeTab) {
+        case "current":
+          filters.status = "active"; // Or could be multiple statuses
+          break;
+        case "archive":
+          filters.status = "vacated"; // Or could be multiple statuses
+          break;
+        case "draft":
+          filters.status = "draft";
+          break;
+      }
+    } else if (selectedStatus !== "All") {
+      filters.status = selectedStatus;
+    }
+
     if (selectedType !== "All") {
       filters.type = selectedType;
     }
 
+    console.log("🏠 调用 fetchTenancies，过滤条件:", filters);
     await fetchTenancies(filters);
-  }, [currentPage, pageSize, searchTerm, selectedType, fetchTenancies]);
+  }, [
+    currentPage,
+    pageSize,
+    searchTerm,
+    selectedType,
+    selectedStatus,
+    activeTab,
+    fetchTenancies,
+  ]);
 
   useEffect(() => {
     loadTenancies();
   }, [loadTenancies]);
+
+  // Update the dependencies for loadTenancies callback
+  useEffect(() => {
+    loadTenancies();
+  }, [
+    selectedStatus,
+    selectedType,
+    searchTerm,
+    activeTab,
+    currentPage,
+    pageSize,
+  ]);
 
   // Click outside to close dropdowns
   useEffect(() => {
@@ -224,125 +262,6 @@ export default function TenanciesPage() {
 
   // Use mock data to show property images
   const actualTenancies = mockTenancies;
-
-  const getFilteredMockTenancies = (tab: string) => {
-    let filtered = actualTenancies;
-
-    // Filter by tab
-    switch (tab) {
-      case "current":
-        filtered = filtered.filter((t) =>
-          ["active", "renewed"].includes(t.status),
-        );
-        break;
-      case "archive":
-        filtered = filtered.filter((t) =>
-          ["vacated", "expired"].includes(t.status),
-        );
-        break;
-      case "draft":
-        filtered = filtered.filter((t) => t.status === "draft");
-        break;
-      default:
-        // All tenancies
-        break;
-    }
-
-    // Filter by search term
-    if (searchTerm) {
-      filtered = filtered.filter(
-        (t) =>
-          t.address.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          t.city.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          t.postcode.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          t.reference.toLowerCase().includes(searchTerm.toLowerCase()),
-      );
-    }
-
-    // Filter by type
-    if (selectedType !== "All") {
-      filtered = filtered.filter((t) => t.type === selectedType);
-    }
-
-    // Filter by status
-    if (selectedStatus !== "All") {
-      filtered = filtered.filter((t) => t.status === selectedStatus);
-    }
-
-    // Filter by renewal date (simplified date range filtering)
-    if (selectedRenewalDate !== "All") {
-      const today = new Date();
-      const endDate = new Date(today);
-
-      switch (selectedRenewalDate) {
-        case "Next 30 days":
-          endDate.setDate(today.getDate() + 30);
-          filtered = filtered.filter((t) => {
-            const renewalDate = new Date(t.end_date);
-            return renewalDate >= today && renewalDate <= endDate;
-          });
-          break;
-        case "Next 60 days":
-          endDate.setDate(today.getDate() + 60);
-          filtered = filtered.filter((t) => {
-            const renewalDate = new Date(t.end_date);
-            return renewalDate >= today && renewalDate <= endDate;
-          });
-          break;
-        case "Next 90 days":
-          endDate.setDate(today.getDate() + 90);
-          filtered = filtered.filter((t) => {
-            const renewalDate = new Date(t.end_date);
-            return renewalDate >= today && renewalDate <= endDate;
-          });
-          break;
-        case "Overdue":
-          filtered = filtered.filter((t) => {
-            const renewalDate = new Date(t.end_date);
-            return renewalDate < today;
-          });
-          break;
-      }
-    }
-
-    // Filter by end date
-    if (selectedEndDate !== "All") {
-      const today = new Date();
-      const endDate = new Date(today);
-
-      switch (selectedEndDate) {
-        case "Next 30 days":
-          endDate.setDate(today.getDate() + 30);
-          filtered = filtered.filter((t) => {
-            const endDateValue = new Date(t.end_date);
-            return endDateValue >= today && endDateValue <= endDate;
-          });
-          break;
-        case "Next 60 days":
-          endDate.setDate(today.getDate() + 60);
-          filtered = filtered.filter((t) => {
-            const endDateValue = new Date(t.end_date);
-            return endDateValue >= today && endDateValue <= endDate;
-          });
-          break;
-        case "Next 90 days":
-          endDate.setDate(today.getDate() + 90);
-          filtered = filtered.filter((t) => {
-            const endDateValue = new Date(t.end_date);
-            return endDateValue >= today && endDateValue <= endDate;
-          });
-          break;
-        case "Overdue":
-          filtered = filtered.filter((t) => {
-            const endDateValue = new Date(t.end_date);
-            return endDateValue < today;
-          });
-          break;
-      }
-    }
-
-    return filtered;
-  };
 
   const getMockTenancyStats = () => {
     return {
@@ -387,7 +306,9 @@ export default function TenanciesPage() {
   };
 
   const stats = getMockTenancyStats();
-  const filteredTenancies = getFilteredMockTenancies(activeTab);
+
+  // Use API data when available, fallback to mock data (like contacts page)
+  const displayTenancies = tenancies.length > 0 ? tenancies : actualTenancies;
 
   const AddTenancyModal = () => {
     const [formData, setFormData] = useState({
@@ -1217,113 +1138,84 @@ export default function TenanciesPage() {
                       boxShadow: "0px 2px 5px 0px rgba(0, 0, 0, 0.10)",
                       zIndex: 1000,
                       marginTop: "4px",
+                      maxHeight: "250px",
+                      overflowY: "auto",
                     }}
                   >
-                    <div
-                      style={{
-                        padding: "8px 15px",
-                        borderBottom: "1px solid #f0f0f0",
-                      }}
-                    >
+                    {[
+                      "All",
+                      "active",
+                      "draft",
+                      "renewed",
+                      "vacating",
+                      "vacated",
+                      "expired",
+                    ].map((status) => (
                       <div
+                        key={status}
+                        onClick={() => {
+                          setSelectedStatus(status);
+                          setStatusFilterOpen(false);
+                        }}
                         style={{
                           display: "flex",
                           alignItems: "center",
-                          gap: "10px",
+                          justifyContent: "space-between",
+                          padding: "8px 15px",
+                          cursor: "pointer",
+                          backgroundColor: "white",
+                          fontSize: "14px",
+                          color:
+                            status === selectedStatus ? "#5D51E2" : "#515666",
+                          transition: "background-color 0.2s ease",
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.backgroundColor = "#f8f9fa";
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.backgroundColor = "white";
                         }}
                       >
-                        <svg
-                          width="16"
-                          height="16"
-                          viewBox="0 0 16 16"
-                          fill="none"
-                        >
-                          <path
-                            fillRule="evenodd"
-                            clipRule="evenodd"
-                            d="M15.8497 15.1401L11.4319 10.7222C12.5242 9.44639 13.0801 7.79708 12.9827 6.12031C12.8854 4.44354 12.1425 2.86963 10.9098 1.72876C9.67713 0.5879 8.05053 -0.0312474 6.37125 0.00121494C4.69198 0.0336772 3.09053 0.715226 1.90288 1.90288C0.715226 3.09053 0.0336772 4.69198 0.00121494 6.37125C-0.0312474 8.05053 0.5879 9.67713 1.72876 10.9098C2.86963 12.1425 4.44354 12.8854 6.12031 12.9827C7.79708 13.0801 9.44639 12.5242 10.7222 11.4319L15.1401 15.8497C15.1865 15.8966 15.2418 15.9337 15.3027 15.9591C15.3636 15.9845 15.4289 15.9975 15.4949 15.9975C15.5609 15.9975 15.6262 15.9845 15.6871 15.9591C15.748 15.9337 15.8033 15.8966 15.8497 15.8497C15.8966 15.8033 15.9337 15.748 15.9591 15.6871C15.9845 15.6262 15.9975 15.5609 15.9975 15.4949C15.9975 15.4289 15.9845 15.3636 15.9591 15.3027C15.9337 15.2418 15.8966 15.1865 15.8497 15.1401ZM6.49929 11.9966C5.41202 11.9966 4.34917 11.6742 3.44514 11.0701C2.54112 10.4661 1.83651 9.60752 1.42043 8.60301C1.00435 7.59851 0.895489 6.49319 1.1076 5.42681C1.31972 4.36044 1.84329 3.38091 2.6121 2.6121C3.38091 1.84329 4.36044 1.31972 5.42681 1.1076C6.49319 0.895489 7.59851 1.00435 8.60301 1.42043C9.60752 1.83651 10.4661 2.54112 11.0701 3.44514C11.6742 4.34917 11.9966 5.41202 11.9966 6.49929C11.9966 7.95726 11.4174 9.35553 10.3865 10.3865C9.35553 11.4174 7.95726 11.9966 6.49929 11.9966Z"
-                            fill="#C6C8D1"
-                          />
-                        </svg>
-                        <input
-                          type="text"
-                          placeholder="Search status..."
-                          value={statusSearchTerm}
-                          onChange={(e) => setStatusSearchTerm(e.target.value)}
+                        <div
                           style={{
-                            border: "none",
-                            outline: "none",
-                            fontSize: "14px",
-                            width: "100%",
-                            backgroundColor: "transparent",
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "8px",
                           }}
-                        />
-                      </div>
-                    </div>
-
-                    <div style={{ maxHeight: "200px", overflowY: "auto" }}>
-                      {[
-                        "All",
-                        "active",
-                        "draft",
-                        "renewed",
-                        "vacating",
-                        "vacated",
-                        "expired",
-                      ]
-                        .filter((status) =>
-                          status
-                            .toLowerCase()
-                            .includes(statusSearchTerm.toLowerCase()),
-                        )
-                        .map((status) => (
-                          <button
-                            key={status}
-                            onClick={() => {
-                              setSelectedStatus(status);
-                              setStatusFilterOpen(false);
-                              setStatusSearchTerm("");
-                            }}
-                            style={{
-                              width: "100%",
-                              padding: "10px 15px",
-                              border: "none",
-                              backgroundColor:
-                                selectedStatus === status
-                                  ? "#F3F2FF"
-                                  : "transparent",
-                              textAlign: "left",
-                              fontSize: "14px",
-                              color:
-                                selectedStatus === status
-                                  ? "#5D51E2"
-                                  : "#515666",
-                              cursor: "pointer",
-                              display: "flex",
-                              alignItems: "center",
-                              gap: "8px",
-                            }}
+                        >
+                          {status !== "All" && (
+                            <div
+                              style={{
+                                width: "8px",
+                                height: "8px",
+                                borderRadius: "50%",
+                                backgroundColor:
+                                  (statusConfig as any)[status]?.color ||
+                                  "#C6C8D1",
+                              }}
+                            />
+                          )}
+                          <span>
+                            {status === "All"
+                              ? "All Statuses"
+                              : (statusConfig as any)[status]?.label || status}
+                          </span>
+                        </div>
+                        {status === selectedStatus && (
+                          <svg
+                            width="12"
+                            height="12"
+                            viewBox="0 0 12 12"
+                            fill="none"
                           >
-                            {status === "All" ? (
-                              "All Statuses"
-                            ) : (
-                              <>
-                                <div
-                                  style={{
-                                    width: "8px",
-                                    height: "8px",
-                                    borderRadius: "50%",
-                                    backgroundColor:
-                                      (statusConfig as any)[status]?.color ||
-                                      "#C6C8D1",
-                                  }}
-                                />
-                                {(statusConfig as any)[status]?.label || status}
-                              </>
-                            )}
-                          </button>
-                        ))}
-                    </div>
+                            <path
+                              d="M4.62893 10.3199L0.24797 6.2999C0.175897 6.23884 0.116897 6.16381 0.0745183 6.07933C0.0321393 5.99484 0.00725613 5.90265 0.00136482 5.80829C-0.00452649 5.71393 0.00869571 5.61935 0.0402365 5.53024C0.0717773 5.44112 0.120985 5.35932 0.184902 5.28974C0.248819 5.22016 0.326125 5.16425 0.412172 5.12536C0.498219 5.08646 0.59123 5.0654 0.685613 5.06343C0.779997 5.06146 0.873803 5.07862 0.961394 5.11389C1.04898 5.14916 1.12855 5.2018 1.1953 5.26865L4.56527 8.3624L10.796 1.89365C10.8599 1.82742 10.9362 1.77444 11.0206 1.73774C11.1049 1.70105 11.1957 1.68136 11.2877 1.67979C11.3796 1.67822 11.471 1.69481 11.5566 1.72861C11.6421 1.76241 11.7202 1.81276 11.7864 1.87678C11.8525 1.9408 11.9054 2.01723 11.942 2.10173C11.9787 2.18622 11.9983 2.27711 11.9999 2.36922C12.0015 2.46132 11.9849 2.55283 11.9512 2.63853C11.9174 2.72422 11.8671 2.80242 11.8032 2.86865L4.62893 10.3199Z"
+                              fill="#5D51E2"
+                            />
+                          </svg>
+                        )}
+                      </div>
+                    ))}
                   </div>
                 )}
               </div>
@@ -1674,7 +1566,7 @@ export default function TenanciesPage() {
         </div>
 
         {/* Empty State */}
-        {filteredTenancies.length === 0 && !loading && (
+        {displayTenancies.length === 0 && !loading && (
           <div
             style={{
               textAlign: "center",
@@ -1691,7 +1583,7 @@ export default function TenanciesPage() {
         )}
 
         {/* Table */}
-        {filteredTenancies.length > 0 && (
+        {displayTenancies.length > 0 && (
           <div style={tableStyle}>
             {/* Table Header */}
             <div style={tableHeaderStyle}>
@@ -1708,7 +1600,7 @@ export default function TenanciesPage() {
             </div>
 
             {/* Table Body */}
-            {filteredTenancies.map((tenancy) => (
+            {displayTenancies.map((tenancy) => (
               <div key={tenancy.id} style={tableRowStyle}>
                 <div style={addressCellStyle}>
                   <img
@@ -1895,7 +1787,7 @@ export default function TenanciesPage() {
         )}
 
         {/* Pagination */}
-        {filteredTenancies.length > 0 && (
+        {displayTenancies.length > 0 && (
           <div style={paginationStyle}>
             <div
               style={{
