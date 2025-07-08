@@ -224,7 +224,7 @@ export default function PropertiesPage() {
     }
 
     await fetchProperties(filters);
-  }, [currentPage, pageSize, searchTerm, statusFilter, typeFilter]);
+  }, [currentPage, pageSize, searchTerm, statusFilter, typeFilter, fetchProperties]);
 
   useEffect(() => {
     // Only try to load properties if not using mock data

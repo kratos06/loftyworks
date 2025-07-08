@@ -83,7 +83,7 @@ export default function ContactsPage() {
     }
 
     await fetchContacts(filters);
-  }, [currentPage, pageSize, searchTerm, selectedType, activeTab, getTypeFromTab]);
+  }, [currentPage, pageSize, searchTerm, selectedType, activeTab, getTypeFromTab, fetchContacts]);
 
   const calculateStats = useCallback(() => {
     // Calculate stats based on actual contact data

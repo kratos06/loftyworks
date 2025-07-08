@@ -129,7 +129,7 @@ export default function TasksPage() {
     }
 
     await fetchTasks(filters);
-  }, [searchTerm, assigneeFilter, typeFilter]);
+  }, [searchTerm, assigneeFilter, typeFilter, fetchTasks]);
 
   useEffect(() => {
     console.log("Tasks page - loading tasks with filters:", {

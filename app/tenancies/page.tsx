@@ -177,7 +177,7 @@ export default function TenanciesPage() {
     }
 
     await fetchTenancies(filters);
-  }, [currentPage, pageSize, searchTerm, selectedType]);
+  }, [currentPage, pageSize, searchTerm, selectedType, fetchTenancies]);
 
   useEffect(() => {
     loadTenancies();

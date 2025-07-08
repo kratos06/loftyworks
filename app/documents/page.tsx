@@ -72,7 +72,7 @@ export default function DocumentsPage() {
     }
 
     await fetchDocuments(filters);
-  }, [currentPage, itemsPerPage, searchTerm, activeTab]);
+  }, [currentPage, itemsPerPage, searchTerm, activeTab, fetchDocuments]);
 
   useEffect(() => {
     loadDocuments();
