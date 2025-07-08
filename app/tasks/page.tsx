@@ -172,7 +172,7 @@ export default function TasksPage() {
     // Filter by assignee
     if (assigneeFilter !== "All") {
       filtered = filtered.filter((task) =>
-        task.assignees.some((assignee) => assignee.name === assigneeFilter),
+        task.assignees.some((assignee: { name: string; avatar_url?: string; initials: string }) => assignee.name === assigneeFilter),
       );
     }
 
