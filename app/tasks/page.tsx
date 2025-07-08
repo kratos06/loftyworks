@@ -227,10 +227,10 @@ export default function TasksPage() {
 
     return columns.map((column) => ({
       ...column,
-      tasks: column.tasks.filter((task) =>
+      tasks: column.tasks.filter((task: Task) =>
         filteredTasks.some((filteredTask) => filteredTask.id === task.id),
       ),
-      count: column.tasks.filter((task) =>
+      count: column.tasks.filter((task: Task) =>
         filteredTasks.some((filteredTask) => filteredTask.id === task.id),
       ).length,
     }));
