@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { useProperties } from "../../hooks/useSupabase";
 
 interface Property {
@@ -207,12 +207,31 @@ export default function PropertiesPage() {
   ];
   const clientOptions = ["None", "Client A", "Client B", "Client C"];
 
+  const loadProperties = useCallback(async () => {
+    const filters: any = {
+      page: currentPage,
+      limit: pageSize,
+    };
+
+    if (searchTerm) {
+      filters.search = searchTerm;
+    }
+    if (statusFilter !== "All") {
+      filters.status = statusFilter;
+    }
+    if (typeFilter !== "All") {
+      filters.type = typeFilter;
+    }
+
+    await fetchProperties(filters);
+  }, [currentPage, pageSize, searchTerm, statusFilter, typeFilter, fetchProperties]);
+
   useEffect(() => {
     // Only try to load properties if not using mock data
     if (!error) {
       loadProperties();
     }
-  }, [currentPage, pageSize, searchTerm, statusFilter, typeFilter, error, loadProperties]);
+  }, [error, loadProperties]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -426,25 +445,6 @@ export default function PropertiesPage() {
         </div>
       </div>
     );
-  };
-
-  const loadProperties = async () => {
-    const filters: any = {
-      page: currentPage,
-      limit: pageSize,
-    };
-
-    if (searchTerm) {
-      filters.search = searchTerm;
-    }
-    if (statusFilter !== "All") {
-      filters.status = statusFilter;
-    }
-    if (typeFilter !== "All") {
-      filters.type = typeFilter;
-    }
-
-    await fetchProperties(filters);
   };
 
   const getStatusStyle = (status: string) => {

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useDocuments } from "../../hooks/useSupabase";
 
 interface Document {
@@ -55,9 +55,28 @@ export default function DocumentsPage() {
   const propertyFilterRef = useRef<HTMLDivElement>(null);
   const dateFilterRef = useRef<HTMLDivElement>(null);
 
+  const loadDocuments = useCallback(async () => {
+    const filters: any = {
+      page: currentPage,
+      limit: itemsPerPage,
+    };
+
+    if (searchTerm) {
+      filters.search = searchTerm;
+    }
+
+    if (activeTab !== "all") {
+      if (activeTab === "expiring") {
+        filters.status = "Expiring";
+      }
+    }
+
+    await fetchDocuments(filters);
+  }, [currentPage, itemsPerPage, searchTerm, activeTab, fetchDocuments]);
+
   useEffect(() => {
     loadDocuments();
-  }, [activeTab, searchTerm, currentPage, itemsPerPage, loadDocuments]);
+  }, [loadDocuments]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -90,25 +109,6 @@ export default function DocumentsPage() {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
-
-  const loadDocuments = async () => {
-    const filters: any = {
-      page: currentPage,
-      limit: itemsPerPage,
-    };
-
-    if (searchTerm) {
-      filters.search = searchTerm;
-    }
-
-    if (activeTab !== "all") {
-      if (activeTab === "expiring") {
-        filters.status = "Expiring";
-      }
-    }
-
-    await fetchDocuments(filters);
-  };
 
   const getFilteredDocuments = () => {
     let filtered = documents;

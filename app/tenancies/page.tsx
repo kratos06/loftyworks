@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useTenancies } from "../../hooks/useSupabase";
 
 interface Tenancy {
@@ -162,19 +162,26 @@ export default function TenanciesPage() {
   >(null);
   const [selectedTenancy, setSelectedTenancy] = useState<Tenancy | null>(null);
 
+  const loadTenancies = useCallback(async () => {
+    const filters: any = {
+      page: currentPage,
+      limit: pageSize,
+    };
+
+    if (searchTerm) {
+      filters.search = searchTerm;
+    }
+
+    if (selectedType !== "All") {
+      filters.type = selectedType;
+    }
+
+    await fetchTenancies(filters);
+  }, [currentPage, pageSize, searchTerm, selectedType, fetchTenancies]);
+
   useEffect(() => {
     loadTenancies();
-  }, [
-    activeTab,
-    searchTerm,
-    selectedType,
-    selectedStatus,
-    selectedRenewalDate,
-    selectedEndDate,
-    currentPage,
-    pageSize,
-    loadTenancies,
-  ]);
+  }, [loadTenancies]);
 
   // Click outside to close dropdowns
   useEffect(() => {
@@ -214,23 +221,6 @@ export default function TenanciesPage() {
     endDateFilterOpen,
     typeFilterOpen,
   ]);
-
-  const loadTenancies = async () => {
-    const filters: any = {
-      page: currentPage,
-      limit: pageSize,
-    };
-
-    if (searchTerm) {
-      filters.search = searchTerm;
-    }
-
-    if (selectedType !== "All") {
-      filters.type = selectedType;
-    }
-
-    await fetchTenancies(filters);
-  };
 
   // Use mock data to show property images
   const actualTenancies = mockTenancies;

@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { useSupabase, useProperties, useContacts } from '@/hooks/useSupabase'
 
 export default function TestSupabasePage() {
@@ -11,11 +11,7 @@ export default function TestSupabasePage() {
   const [connectionStatus, setConnectionStatus] = useState<'checking' | 'connected' | 'error'>('checking')
   const [testResults, setTestResults] = useState<string[]>([])
 
-  useEffect(() => {
-    testConnection()
-  }, [testConnection])
-
-  const testConnection = async () => {
+  const testConnection = useCallback(async () => {
     const results: string[] = []
     
     try {
@@ -60,7 +56,11 @@ export default function TestSupabasePage() {
     }
     
     setTestResults(results)
-  }
+  }, [supabase, setConnectionStatus, setTestResults])
+
+  useEffect(() => {
+    testConnection()
+  }, [testConnection])
 
   const clearAllData = async () => {
     try {
