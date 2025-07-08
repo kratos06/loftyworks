@@ -83,7 +83,7 @@ export default function ContactsPage() {
     }
 
     await fetchContacts(filters);
-  }, [currentPage, pageSize, searchTerm, selectedType, activeTab, fetchContacts, getTypeFromTab]);
+  }, [currentPage, pageSize, searchTerm, selectedType, activeTab, getTypeFromTab]);
 
   const calculateStats = useCallback(() => {
     // Calculate stats based on actual contact data
@@ -111,7 +111,7 @@ export default function ContactsPage() {
       permittedOccupier: permittedOccupierCount,
       other: otherCount,
     });
-  }, [contacts, setContactStats]);
+  }, [contacts]);
 
   useEffect(() => {
     loadContacts();

@@ -56,7 +56,7 @@ export default function TestSupabasePage() {
     }
     
     setTestResults(results)
-  }, [supabase, setConnectionStatus, setTestResults])
+  }, [supabase])
 
   useEffect(() => {
     testConnection()
