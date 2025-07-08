@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import TaskActionsDropdown from "../../components/ui/TaskActionsDropdown";
 import { useTasks } from "../../hooks/useSupabase";
@@ -115,6 +115,22 @@ export default function TasksPage() {
     showAddTagModal,
   ]);
 
+  const loadTasks = useCallback(async () => {
+    const filters: any = {};
+
+    if (searchTerm) {
+      filters.search = searchTerm;
+    }
+    if (assigneeFilter !== "All") {
+      filters.assignee = assigneeFilter;
+    }
+    if (typeFilter !== "All") {
+      filters.type = typeFilter;
+    }
+
+    await fetchTasks(filters);
+  }, [searchTerm, assigneeFilter, typeFilter, fetchTasks]);
+
   useEffect(() => {
     console.log("Tasks page - loading tasks with filters:", {
       searchTerm,
@@ -138,22 +154,6 @@ export default function TasksPage() {
       })),
     });
   }, [tasks, columns]);
-
-  const loadTasks = async () => {
-    const filters: any = {};
-
-    if (searchTerm) {
-      filters.search = searchTerm;
-    }
-    if (assigneeFilter !== "All") {
-      filters.assignee = assigneeFilter;
-    }
-    if (typeFilter !== "All") {
-      filters.type = typeFilter;
-    }
-
-    await fetchTasks(filters);
-  };
 
   // Local filtering function for tasks
   const getFilteredTasks = () => {

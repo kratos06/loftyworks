@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useContacts } from "../../hooks/useSupabase";
 
 interface Contact {
@@ -51,30 +51,21 @@ export default function ContactsPage() {
     other: 0,
   });
 
-  useEffect(() => {
-    loadContacts();
-  }, [currentPage, pageSize, searchTerm, selectedType, activeTab, loadContacts]);
-
-  useEffect(() => {
-    calculateStats();
-  }, [contacts, calculateStats]);
-
-  // Close dropdown when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      const target = event.target as Element;
-      if (typeFilterOpen && !target.closest("[data-type-dropdown]")) {
-        setTypeFilterOpen(false);
-      }
+  const getTypeFromTab = useCallback((tab: string) => {
+    const typeMap: { [key: string]: string } = {
+      guarantor: "Guarantor",
+      landlord: "Landlord",
+      new: "New",
+      supplier: "Supplier",
+      system: "System",
+      tenant: "Tenant",
+      "permitted-occupier": "Permitted Occupier",
+      other: "Other",
     };
+    return typeMap[tab];
+  }, []);
 
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [typeFilterOpen]);
-
-  const loadContacts = async () => {
+  const loadContacts = useCallback(async () => {
     const filters: any = {
       page: currentPage,
       limit: pageSize,
@@ -92,9 +83,9 @@ export default function ContactsPage() {
     }
 
     await fetchContacts(filters);
-  };
+  }, [currentPage, pageSize, searchTerm, selectedType, activeTab, fetchContacts, getTypeFromTab]);
 
-  const calculateStats = () => {
+  const calculateStats = useCallback(() => {
     // Calculate stats based on actual contact data
     const guarantorCount = contacts.filter(
       (c) => c.type === "Guarantor",
@@ -120,21 +111,30 @@ export default function ContactsPage() {
       permittedOccupier: permittedOccupierCount,
       other: otherCount,
     });
-  };
+  }, [contacts, setContactStats]);
 
-  const getTypeFromTab = (tab: string) => {
-    const typeMap: { [key: string]: string } = {
-      guarantor: "Guarantor",
-      landlord: "Landlord",
-      new: "New",
-      supplier: "Supplier",
-      system: "System",
-      tenant: "Tenant",
-      "permitted-occupier": "Permitted Occupier",
-      other: "Other",
+  useEffect(() => {
+    loadContacts();
+  }, [loadContacts]);
+
+  useEffect(() => {
+    calculateStats();
+  }, [calculateStats]);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Element;
+      if (typeFilterOpen && !target.closest("[data-type-dropdown]")) {
+        setTypeFilterOpen(false);
+      }
     };
-    return typeMap[tab];
-  };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [typeFilterOpen]);
 
   const getTabCount = (tab: string) => {
     switch (tab) {
