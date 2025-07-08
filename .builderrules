@@ -1,0 +1,12 @@
+Please create a new web application using Vue.js as the frontend technology stack. Use the following specifications:
+
+1. **Framework**: Vue 3 with Composition API
+2. **Build Tool**: Vite for fast development and building
+3. **Package Manager**: Use npm or yarn for dependency management
+4. **Project Structure**: Initialize the project using Vue CLI or create-vue for proper scaffolding
+5. **Styling**: Include a CSS framework (such as Tailwind CSS, Bootstrap, or Vuetify) for responsive design
+6. **State Management**: Set up Pinia for state management if the application requires complex state handling
+7. **Routing**: Configure Vue Router for single-page application navigation
+8. **Development Environment**: Ensure hot reload is properly configured for real-time development feedback
+
+Please initialize the project in the current workspace directory and set up a basic application structure with at least one example component and route. After setup, provide instructions on how to run the development server and verify the application is working correctly.

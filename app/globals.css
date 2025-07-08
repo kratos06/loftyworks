@@ -1,0 +1,109 @@
+:root {
+  /* Colors from design system */
+  --solid-black-f6f7fb: #f6f7fb;
+  --solid-black-ebecf1: #ebecf1;
+  --solid-black-ffffff: #fff;
+  --solid-black-202437: #202437;
+  --solid-black-a0a3af: #a0a3af;
+  --solid-black-797e8b: #797e8b;
+  --solid-sales-theme-5d51e2: #5d51e2;
+  --solid-black-515666: #515666;
+  --avatar-random-color-8470fd: #8470fd;
+  --solid-green-20c472: #20c472;
+  --solid-black-c6c8d1: #c6c8d1;
+  --solid-orange-ffa600: #ffa600;
+  --solid-red-f0454c: #f0454c;
+  --solid-black-e1e2e6: #e1e2e6;
+}
+
+html,
+body {
+  font-family:
+    -apple-system, BlinkMacSystemFont, "SF UI Text", "SF Pro Text", "SF Pro",
+    "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+html,
+body {
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
+body {
+  color: var(--solid-black-202437);
+  background: var(--solid-black-f6f7fb);
+  font-family:
+    -apple-system, BlinkMacSystemFont, "SF UI Text", "SF Pro Text", "SF Pro",
+    "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+input {
+  font-family: inherit;
+}
+
+.container {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+/* Status colors */
+.status-instructed {
+  color: var(--solid-sales-theme-5d51e2);
+}
+.status-active {
+  color: var(--solid-green-20c472);
+}
+.status-draft {
+  color: var(--solid-black-c6c8d1);
+}
+.status-offer-agreed {
+  color: var(--solid-orange-ffa600);
+}
+.status-vacant {
+  color: var(--solid-red-f0454c);
+}
+.status-lost-to-let {
+  color: var(--solid-sales-theme-5d51e2);
+}
+
+/* Table styles */
+.table-row {
+  border-bottom: 1px solid var(--solid-black-ebecf1);
+}
+
+.table-row:hover {
+  background-color: rgba(93, 81, 226, 0.02);
+}
+
+/* Task Actions Dropdown styles */
+.task-actions-dropdown {
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
+
+.task-actions-dropdown * {
+  box-sizing: border-box;
+}
